@@ -3,7 +3,7 @@ package com.example.mycontacts;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.mycontacts.R;
+import com.example.mycontacts.MyContactsDataBase.ContactsCursor;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -12,8 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.SimpleCursorAdapter;
 
 public class MainActivity extends ListActivity{
 	
@@ -27,11 +28,18 @@ public class MainActivity extends ListActivity{
 	//Se declara aqui para poder usarla en los metodos del modo contextual
 	private List<String> mListaEjemplo;
 	
-	private ArrayAdapter<String> mListAdapter;
+	private BaseAdapter mListAdapter;
+	
+	private MyContactsDataBase contactsDB;
+
+	private ContactsCursor mCursor;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		contactsDB = new MyContactsDataBase(this);
+		
 		setContentView(R.layout.activity_main);
 		
 		// inicializar lista contenidos de ejemplo
@@ -47,12 +55,25 @@ public class MainActivity extends ListActivity{
 		
 
 		// Crear y establecer un adaptador para mListaEjemplo y la ListView
-		mListAdapter =new ArrayAdapter<String>(this.getBaseContext(),
-				R.layout.list_item, 
-				R.id.titulo,
-				mListaEjemplo);
+//		mListAdapter =new ArrayAdapter<String>(this.getBaseContext(),
+//				R.layout.list_item, 
+//				R.id.titulo,
+//				mListaEjemplo);
+		
+		mCursor = contactsDB.getJobs(ContactsCursor.SortBy.name);
+		mListAdapter = new SimpleCursorAdapter(this, R.layout.list_item, 
+				mCursor,
+				new String[] { "name" }, 
+				new int[] { R.id.titulo });
 		
 		setListAdapter(mListAdapter);
+	}
+	
+	@Override
+	public void onRestart(){
+		super.onRestart();
+		mCursor.requery();
+		mListAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -86,8 +107,13 @@ public class MainActivity extends ListActivity{
 		Object o = getListAdapter().getItem(position);
 		//Creamos un intent para iniciar la actividad de detalle
 		Intent intent = new Intent(this, DetailActivity.class);
+		
 		//Pasamos el titulo del item como informacion extra en el intent para la nueva actividad
-		intent.putExtra("CONTROL_04", o.toString());
+//		intent.putExtra("CONTROL_04", o.toString());
+		
+		mCursor.moveToPosition(position);
+		intent.putExtra("_id", (int) mCursor.getColId());
+		
 		//iniciamos la actividad
 		startActivity(intent);
 	}
@@ -97,7 +123,9 @@ public class MainActivity extends ListActivity{
 		if (resultCode == RESULT_OK && requestCode == ADD_CONTACT_CODE)
 			if (data.hasExtra(MyContact.CONTACT_KEY)) {
 				MyContact c = data.getExtras().getParcelable(MyContact.CONTACT_KEY);
-				mListaEjemplo.add(c.getName());
+//				mListaEjemplo.add(c.getName());
+				contactsDB.addContact(c.getName(),c.getSurname());
+				mCursor.requery();
 				mListAdapter.notifyDataSetChanged();
 			}
 				
