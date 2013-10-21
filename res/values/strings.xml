@@ -21,13 +21,5 @@
     <string name="title_activity_detail">Contact details</string>
     <string name="title_activity_display_message">Display Message</string>
     <string name="title_activity_add_user">Add Contact</string>
-	<string name="MyContactsDataBase_onCreate">" CREATE TABLE contacts (_id INTEGER PRIMARY KEY AUTOINCREMENT, contact_id INTEGER, name TEXT, surname TEXT);
-INSERT INTO contacts (name, surname) VALUES ('Neal','Stephenson'); 
-INSERT INTO contacts (name, surname) VALUES ('Roy','Bradbury'); 
-INSERT INTO contacts (name, surname) VALUES ('Agnes','Liskow');
-INSERT INTO contacts (name, surname) VALUES ('Lucie','Lu');  
-	"</string>
-	<string name="MyContactsDataBase_onUpgrade">"
-	    DROP TABLE IF EXISTS contacts;
-	"</string>
+
 </resources>
